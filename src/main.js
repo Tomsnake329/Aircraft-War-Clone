@@ -20,6 +20,20 @@ const GAME_WIDTH = canvas.width;
 const GAME_HEIGHT = canvas.height;
 
 const BASE_FIRE_INTERVAL = 0.22;
+const POWERUP_DEFS = {
+  spread: {
+    label: "Spread",
+    color: "#8ff8ff",
+    accent: "#14304c",
+    duration: 8,
+  },
+  rapid: {
+    label: "Rapid",
+    color: "#ffd166",
+    accent: "#5c2f00",
+    duration: 6,
+  },
+};
 
 const game = {
   state: "title",
@@ -403,8 +417,9 @@ function spawnEnemyFromConfig(config) {
 function fireBullet() {
   const player = game.player;
   const spreadActive = player.weapon.mode === "spread";
-  const bulletSpeed = spreadActive ? 660 : 600;
-  const bulletColor = spreadActive ? "#8ff8ff" : "#ffe066";
+  const rapidActive = player.weapon.mode === "rapid";
+  const bulletSpeed = spreadActive ? 660 : rapidActive ? 640 : 600;
+  const bulletColor = spreadActive ? "#8ff8ff" : rapidActive ? "#ffd166" : "#ffe066";
   const shots = spreadActive
     ? [
         { offsetX: -12, velocityX: -110 },
@@ -430,10 +445,14 @@ function fireBullet() {
 }
 
 function spawnPowerUp(x, y, type = "spread") {
+  const powerUpDef = POWERUP_DEFS[type] || POWERUP_DEFS.spread;
   game.powerUps.push({
     x,
     y,
     type,
+    label: powerUpDef.label,
+    color: powerUpDef.color,
+    accent: powerUpDef.accent,
     width: 24,
     height: 24,
     speed: 140,
@@ -508,7 +527,7 @@ function update(deltaSeconds) {
   game.fireTimer -= deltaSeconds;
   if (game.fireTimer <= 0) {
     fireBullet();
-    game.fireTimer = player.weapon.mode === "spread" ? 0.11 : BASE_FIRE_INTERVAL;
+    game.fireTimer = getFireInterval(player.weapon.mode);
   }
 
   updateBullets(deltaSeconds);
@@ -523,8 +542,7 @@ function update(deltaSeconds) {
 
   scoreValue.textContent = String(game.score);
   hpValue.textContent = String(player.hp);
-  powerValue.textContent =
-    player.weapon.mode === "spread" ? `Spread ${player.weapon.timer.toFixed(1)}s` : "Standard";
+  powerValue.textContent = getWeaponHudLabel();
   nextTierValue.textContent = `${Math.max(0, getNextTierTarget() - game.score)} pts`;
   timeValue.textContent = `${game.elapsed.toFixed(1)}s`;
   threatValue.textContent = `Lv ${threatLevel}`;
@@ -595,6 +613,26 @@ function updatePowerUps(deltaSeconds) {
     powerUp.y += powerUp.speed * deltaSeconds;
     powerUp.bob += deltaSeconds * 3.6;
   }
+}
+
+function getFireInterval(mode) {
+  if (mode === "spread") {
+    return 0.11;
+  }
+  if (mode === "rapid") {
+    return 0.08;
+  }
+  return BASE_FIRE_INTERVAL;
+}
+
+function getWeaponHudLabel() {
+  const weapon = game.player.weapon;
+  if (weapon.mode === "standard") {
+    return "Standard";
+  }
+
+  const powerUpDef = POWERUP_DEFS[weapon.mode] || POWERUP_DEFS.spread;
+  return `${powerUpDef.label} ${weapon.timer.toFixed(1)}s`;
 }
 
 function updateStars(deltaSeconds) {
@@ -689,7 +727,7 @@ function handleBulletCollisions() {
           game.screenShake = Math.max(game.screenShake, enemy.type === "tank" ? 9 : 4);
           addExplosion(enemy.x, enemy.y, enemy.type === "tank" ? "#ffd166" : "#ff8c42", enemy.type === "tank" ? 1.7 : 1.05);
           if (enemy.dropPowerUp) {
-            spawnPowerUp(enemy.x, enemy.y, "spread");
+            spawnPowerUp(enemy.x, enemy.y, Math.random() > 0.5 ? "spread" : "rapid");
           }
         }
         break;
@@ -720,11 +758,15 @@ function handlePowerUpCollection() {
 }
 
 function applyPowerUp(type) {
-  if (type === "spread") {
-    game.player.weapon.mode = "spread";
-    game.player.weapon.timer = Math.min(12, game.player.weapon.timer + 8);
-    game.screenFlash = Math.max(game.screenFlash, 0.16);
+  const powerUpDef = POWERUP_DEFS[type];
+  if (!powerUpDef) {
+    return;
   }
+
+  game.player.weapon.mode = type;
+  game.player.weapon.timer = Math.min(12, game.player.weapon.timer + powerUpDef.duration);
+  game.screenFlash = Math.max(game.screenFlash, 0.16);
+  game.screenShake = Math.max(game.screenShake, 4);
 }
 
 function handlePlayerCollisions() {
@@ -899,6 +941,11 @@ function drawPlayer() {
     ctx.fill();
   }
 
+  if (player.weapon.mode === "rapid") {
+    ctx.fillStyle = "rgba(255, 209, 102, 0.2)";
+    ctx.fillRect(player.x - 28, player.y - 4, 56, 8);
+  }
+
   if (player.invulnerableTimer > 0) {
     const shieldPulse = 0.25 + Math.abs(Math.sin(player.invulnerableTimer * 16)) * 0.35;
     ctx.lineWidth = 3;
@@ -993,11 +1040,28 @@ function drawPowerUps() {
     ctx.save();
     ctx.translate(powerUp.x, powerUp.y + bobOffset);
     ctx.rotate(powerUp.bob * 0.3);
-    ctx.fillStyle = "#8ff8ff";
+    ctx.fillStyle = powerUp.color;
     ctx.fillRect(-11, -11, 22, 22);
-    ctx.fillStyle = "#14304c";
-    ctx.fillRect(-3, -11, 6, 22);
-    ctx.fillRect(-11, -3, 22, 6);
+    ctx.fillStyle = powerUp.accent;
+
+    if (powerUp.type === "rapid") {
+      ctx.fillRect(-8, -3, 16, 6);
+      ctx.fillRect(1, -8, 6, 16);
+      ctx.beginPath();
+      ctx.moveTo(-7, 9);
+      ctx.lineTo(0, -2);
+      ctx.lineTo(4, 2);
+      ctx.lineTo(-1, 11);
+      ctx.closePath();
+      ctx.fill();
+    } else {
+      ctx.fillRect(-3, -11, 6, 22);
+      ctx.fillRect(-11, -3, 22, 6);
+    }
+
+    ctx.strokeStyle = "rgba(255,255,255,0.45)";
+    ctx.lineWidth = 2;
+    ctx.strokeRect(-11, -11, 22, 22);
     ctx.restore();
   }
 }
