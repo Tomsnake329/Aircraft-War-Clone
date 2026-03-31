@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <title>Sky Patrol Prototype</title>
+  <link rel="stylesheet" href="./styles.css">
+</head>
+<body>
+  <div class="app-shell">
+    <header class="topbar">
+      <div>
+        <p class="eyebrow">First Pass Browser Prototype</p>
+        <h1>Sky Patrol Prototype</h1>
+      </div>
+      <div class="topbar-copy">
+        <p>Portrait-friendly vertical shooter with placeholder visuals only.</p>
+      </div>
+    </header>
+
+    <main class="game-layout">
+      <section class="hud-card">
+        <div class="hud-row">
+          <span>Score</span>
+          <strong id="scoreValue">0</strong>
+        </div>
+        <div class="hud-row">
+          <span>HP</span>
+          <strong id="hpValue">5</strong>
+        </div>
+        <div class="hud-row">
+          <span>Best</span>
+          <strong id="bestValue">0</strong>
+        </div>
+        <p class="hud-help">Drag, move your pointer, or use WASD / arrow keys to steer. The ship fires automatically. Press Space or Enter to start / restart.</p>
+      </section>
+
+      <section class="game-card">
+        <div class="canvas-frame">
+          <canvas id="gameCanvas" width="480" height="800" aria-label="Sky Patrol Prototype game area"></canvas>
+
+          <div class="overlay visible" id="startOverlay">
+            <div class="panel">
+              <p class="eyebrow">Mission Briefing</p>
+              <h2>Sky Patrol Prototype</h2>
+              <p>Hold the line, dodge incoming craft, and survive as long as you can.</p>
+              <button id="startButton" class="action-button">Start Mission</button>
+            </div>
+          </div>
+
+          <div class="overlay" id="gameOverOverlay">
+            <div class="panel">
+              <p class="eyebrow">Run Complete</p>
+              <h2>Game Over</h2>
+              <p id="gameOverSummary">Score: 0</p>
+              <button id="restartButton" class="action-button">Restart</button>
+            </div>
+          </div>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <script type="module" src="./src/main.js"></script>
+</body>
+</html>
