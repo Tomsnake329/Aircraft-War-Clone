@@ -903,6 +903,14 @@ window.addEventListener("keydown", (event) => {
     return;
   }
 
+  if (key === "r") {
+    event.preventDefault();
+    if (game.state === "playing" || game.state === "paused" || game.state === "gameover") {
+      startGame();
+    }
+    return;
+  }
+
   if (key === " " || key === "enter") {
     event.preventDefault();
     if (game.state === "title" || game.state === "gameover") {
