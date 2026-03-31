@@ -907,7 +907,7 @@ function setInputDirection(key, pressed) {
 window.addEventListener("keydown", (event) => {
   const key = event.key.toLowerCase();
 
-  if (key === "p") {
+  if (key === "p" || key === "escape") {
     event.preventDefault();
     if (game.state === "playing" || game.state === "paused") {
       togglePause();
