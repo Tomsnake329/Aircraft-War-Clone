@@ -43,6 +43,8 @@ const game = {
   surgeBannerTimer: 0,
   surgeTimer: 0,
   surgeFollowupTimer: 0,
+  surgeWarningTimer: 0,
+  surgeWarningLevel: 0,
   lastThreatLevel: 0,
   pauseReason: "manual",
   input: {
@@ -104,6 +106,8 @@ function resetGame() {
   game.surgeBannerTimer = 0;
   game.surgeTimer = 0;
   game.surgeFollowupTimer = 0;
+  game.surgeWarningTimer = 0;
+  game.surgeWarningLevel = 0;
   game.pauseReason = "manual";
   game.lastThreatLevel = 0;
   game.state = "playing";
@@ -313,12 +317,13 @@ function spawnSurgePattern(level) {
 }
 
 function triggerThreatSurge(level) {
-  game.surgeBannerTimer = 2.1;
-  game.surgeTimer = 6;
-  game.surgeFollowupTimer = 2.2;
-  game.screenFlash = Math.max(game.screenFlash, 0.12);
+  game.surgeWarningLevel = level;
+  game.surgeWarningTimer = 1.15;
+  game.surgeBannerTimer = 3.2;
+  game.surgeTimer = 7.2;
+  game.surgeFollowupTimer = 3.15;
+  game.screenFlash = Math.max(game.screenFlash, 0.15);
   game.screenShake = Math.max(game.screenShake, 6);
-  spawnSurgePattern(level);
 }
 
 function addWarning({ x, y, delay, enemyConfig, big = false }) {
@@ -470,6 +475,11 @@ function update(deltaSeconds) {
     triggerThreatSurge(threatLevel);
   }
 
+  if (game.surgeWarningTimer > 0 && game.surgeWarningTimer <= 0.55 && game.surgeFollowupTimer > 2.9) {
+    spawnSurgePattern(threatLevel);
+    game.surgeFollowupTimer = Math.min(game.surgeFollowupTimer, 2.15);
+  }
+
   if (game.surgeTimer > 0) {
     game.surgeFollowupTimer -= deltaSeconds;
     if (game.surgeFollowupTimer <= 0) {
@@ -602,6 +612,7 @@ function updateEffects(deltaSeconds) {
   game.screenShake = Math.max(0, game.screenShake - deltaSeconds * 18);
   game.surgeBannerTimer = Math.max(0, game.surgeBannerTimer - deltaSeconds);
   game.surgeTimer = Math.max(0, game.surgeTimer - deltaSeconds);
+  game.surgeWarningTimer = Math.max(0, game.surgeWarningTimer - deltaSeconds);
 }
 
 function spawnSurgeFollowupPattern(level) {
@@ -793,6 +804,7 @@ function draw() {
   drawExplosions();
   ctx.restore();
   drawDamageFlash();
+  drawSurgeWarning();
   drawSurgeRails();
   drawSurgeBanner();
   drawPauseOverlay();
@@ -1036,6 +1048,35 @@ function drawSurgeBanner() {
   ctx.fillStyle = "#fff4cf";
   ctx.font = "bold 22px Trebuchet MS, Segoe UI, sans-serif";
   ctx.fillText(`Threat Surge Lv ${game.lastThreatLevel}`, GAME_WIDTH / 2, topY + 28);
+  ctx.globalAlpha = 1;
+}
+
+function drawSurgeWarning() {
+  if (game.surgeWarningTimer <= 0 || game.state !== "playing") {
+    return;
+  }
+
+  const progress = 1 - game.surgeWarningTimer / 1.15;
+  const alpha = 0.18 + Math.abs(Math.sin(game.elapsed * 18)) * 0.2;
+  const ringRadius = 54 + progress * 190;
+
+  ctx.globalAlpha = alpha;
+  ctx.strokeStyle = "#ffd166";
+  ctx.lineWidth = 4;
+  ctx.beginPath();
+  ctx.arc(GAME_WIDTH / 2, GAME_HEIGHT / 2, ringRadius, 0, Math.PI * 2);
+  ctx.stroke();
+
+  ctx.fillStyle = "rgba(255, 107, 107, 0.14)";
+  ctx.fillRect(0, 0, GAME_WIDTH, GAME_HEIGHT);
+
+  ctx.textAlign = "center";
+  ctx.fillStyle = "#fff4cf";
+  ctx.font = "bold 30px Trebuchet MS, Segoe UI, sans-serif";
+  ctx.fillText("SURGE INCOMING", GAME_WIDTH / 2, GAME_HEIGHT / 2 - 8);
+  ctx.font = "18px Trebuchet MS, Segoe UI, sans-serif";
+  ctx.fillStyle = "#ffd7a3";
+  ctx.fillText(`Threat Level ${game.surgeWarningLevel}`, GAME_WIDTH / 2, GAME_HEIGHT / 2 + 24);
   ctx.globalAlpha = 1;
 }
 
