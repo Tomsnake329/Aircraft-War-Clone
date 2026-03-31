@@ -40,6 +40,7 @@ const game = {
   explosions: [],
   screenFlash: 0,
   screenShake: 0,
+  pauseReason: "manual",
   input: {
     up: false,
     down: false,
@@ -96,6 +97,7 @@ function resetGame() {
   game.score = 0;
   game.screenFlash = 0;
   game.screenShake = 0;
+  game.pauseReason = "manual";
   game.state = "playing";
   game.lastTime = performance.now();
   scoreValue.textContent = "0";
@@ -116,9 +118,10 @@ function startGame() {
   resetGame();
 }
 
-function togglePause() {
+function togglePause(reason = "manual") {
   if (game.state === "playing") {
     game.state = "paused";
+    game.pauseReason = reason;
     game.input.up = false;
     game.input.down = false;
     game.input.left = false;
@@ -128,6 +131,7 @@ function togglePause() {
 
   if (game.state === "paused") {
     game.state = "playing";
+    game.pauseReason = "manual";
     game.lastTime = performance.now();
   }
 }
@@ -874,7 +878,8 @@ function drawPauseOverlay() {
   ctx.fillText("Paused", GAME_WIDTH / 2, GAME_HEIGHT / 2 - 8);
   ctx.font = "20px Trebuchet MS, Segoe UI, sans-serif";
   ctx.fillStyle = "#b6c8dc";
-  ctx.fillText("Press P or Esc to resume", GAME_WIDTH / 2, GAME_HEIGHT / 2 + 28);
+  const pauseHint = game.pauseReason === "focus-loss" ? "Auto-paused after focus loss" : "Press P or Esc to resume";
+  ctx.fillText(pauseHint, GAME_WIDTH / 2, GAME_HEIGHT / 2 + 28);
 }
 
 function gameLoop(timestamp) {
@@ -943,13 +948,13 @@ window.addEventListener("keyup", (event) => {
 
 document.addEventListener("visibilitychange", () => {
   if (document.hidden && game.state === "playing") {
-    togglePause();
+    togglePause("focus-loss");
   }
 });
 
 window.addEventListener("blur", () => {
   if (game.state === "playing") {
-    togglePause();
+    togglePause("focus-loss");
   }
 });
 
