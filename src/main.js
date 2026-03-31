@@ -6,6 +6,7 @@ const hpValue = document.getElementById("hpValue");
 const bestValue = document.getElementById("bestValue");
 const powerValue = document.getElementById("powerValue");
 const nextTierValue = document.getElementById("nextTierValue");
+const timeValue = document.getElementById("timeValue");
 const startOverlay = document.getElementById("startOverlay");
 const gameOverOverlay = document.getElementById("gameOverOverlay");
 const gameOverSummary = document.getElementById("gameOverSummary");
@@ -47,6 +48,7 @@ const game = {
 bestValue.textContent = String(game.bestScore);
 powerValue.textContent = "Standard";
 nextTierValue.textContent = "90 pts";
+timeValue.textContent = "0.0s";
 
 function createPlayer() {
   return {
@@ -96,6 +98,7 @@ function resetGame() {
   hpValue.textContent = String(game.player.hp);
   powerValue.textContent = "Standard";
   nextTierValue.textContent = `${getNextTierTarget()} pts`;
+  timeValue.textContent = "0.0s";
   hideOverlay(startOverlay);
   hideOverlay(gameOverOverlay);
 }
@@ -427,6 +430,7 @@ function update(deltaSeconds) {
   powerValue.textContent =
     player.weapon.mode === "spread" ? `Spread ${player.weapon.timer.toFixed(1)}s` : "Standard";
   nextTierValue.textContent = `${Math.max(0, getNextTierTarget() - game.score)} pts`;
+  timeValue.textContent = `${game.elapsed.toFixed(1)}s`;
 
   if (player.hp <= 0) {
     endGame();
