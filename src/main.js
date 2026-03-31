@@ -704,6 +704,15 @@ function drawPlayer() {
     ctx.fill();
   }
 
+  if (player.invulnerableTimer > 0) {
+    const shieldPulse = 0.25 + Math.abs(Math.sin(player.invulnerableTimer * 16)) * 0.35;
+    ctx.lineWidth = 3;
+    ctx.strokeStyle = `rgba(143, 248, 255, ${shieldPulse.toFixed(3)})`;
+    ctx.beginPath();
+    ctx.arc(player.x, player.y + 2, 28, 0, Math.PI * 2);
+    ctx.stroke();
+  }
+
   ctx.save();
   ctx.translate(player.x, player.y);
 
