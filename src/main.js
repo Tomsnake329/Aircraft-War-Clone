@@ -5,6 +5,7 @@ const scoreValue = document.getElementById("scoreValue");
 const hpValue = document.getElementById("hpValue");
 const bestValue = document.getElementById("bestValue");
 const powerValue = document.getElementById("powerValue");
+const nextTierValue = document.getElementById("nextTierValue");
 const startOverlay = document.getElementById("startOverlay");
 const gameOverOverlay = document.getElementById("gameOverOverlay");
 const gameOverSummary = document.getElementById("gameOverSummary");
@@ -45,6 +46,7 @@ const game = {
 
 bestValue.textContent = String(game.bestScore);
 powerValue.textContent = "Standard";
+nextTierValue.textContent = "90 pts";
 
 function createPlayer() {
   return {
@@ -93,6 +95,7 @@ function resetGame() {
   scoreValue.textContent = "0";
   hpValue.textContent = String(game.player.hp);
   powerValue.textContent = "Standard";
+  nextTierValue.textContent = `${getNextTierTarget()} pts`;
   hideOverlay(startOverlay);
   hideOverlay(gameOverOverlay);
 }
@@ -145,6 +148,11 @@ function getThreatLevel() {
 function getSpawnInterval() {
   const level = getThreatLevel();
   return Math.max(0.42, 1.15 - level * 0.08);
+}
+
+function getNextTierTarget() {
+  const scoreTierTarget = (Math.floor(game.score / 90) + 1) * 90;
+  return scoreTierTarget;
 }
 
 function queueEnemyWave() {
@@ -418,6 +426,7 @@ function update(deltaSeconds) {
   hpValue.textContent = String(player.hp);
   powerValue.textContent =
     player.weapon.mode === "spread" ? `Spread ${player.weapon.timer.toFixed(1)}s` : "Standard";
+  nextTierValue.textContent = `${Math.max(0, getNextTierTarget() - game.score)} pts`;
 
   if (player.hp <= 0) {
     endGame();
