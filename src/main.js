@@ -27,6 +27,7 @@ const game = {
   bullets: [],
   enemies: [],
   explosions: [],
+  floatingTexts: [],
   input: {
     up: false,
     down: false,
@@ -65,6 +66,7 @@ function resetGame() {
   game.bullets = [];
   game.enemies = [];
   game.explosions = [];
+  game.floatingTexts = [];
   game.spawnTimer = 0;
   game.fireTimer = 0;
   game.score = 0;
@@ -144,6 +146,17 @@ function addExplosion(x, y, color) {
     life: 0.28,
     maxLife: 0.28,
     color,
+  });
+}
+
+function addFloatingText(x, y, text, color = "#ffe066") {
+  game.floatingTexts.push({
+    x,
+    y,
+    text,
+    color,
+    life: 0.55,
+    maxLife: 0.55,
   });
 }
 
@@ -237,6 +250,12 @@ function updateExplosions(deltaSeconds) {
     burst.radius += 110 * deltaSeconds;
   }
   game.explosions = game.explosions.filter((burst) => burst.life > 0);
+
+  for (const text of game.floatingTexts) {
+    text.life -= deltaSeconds;
+    text.y -= 38 * deltaSeconds;
+  }
+  game.floatingTexts = game.floatingTexts.filter((text) => text.life > 0);
 }
 
 function handleBulletCollisions() {
@@ -258,6 +277,7 @@ function handleBulletCollisions() {
         if (enemy.hp <= 0) {
           game.score += enemy.scoreValue;
           addExplosion(enemy.x, enemy.y, "#ff9f43");
+          addFloatingText(enemy.x, enemy.y, `+${enemy.scoreValue}`);
         }
         break;
       }
@@ -322,6 +342,7 @@ function draw() {
   drawEnemies();
   drawPlayer();
   drawExplosions();
+  drawFloatingTexts();
 }
 
 function drawBackground() {
@@ -422,6 +443,17 @@ function drawExplosions() {
     ctx.beginPath();
     ctx.arc(burst.x, burst.y, burst.radius, 0, Math.PI * 2);
     ctx.stroke();
+  }
+  ctx.globalAlpha = 1;
+}
+
+function drawFloatingTexts() {
+  ctx.textAlign = "center";
+  ctx.font = "bold 22px Trebuchet MS, Segoe UI, sans-serif";
+  for (const text of game.floatingTexts) {
+    ctx.globalAlpha = text.life / text.maxLife;
+    ctx.fillStyle = text.color;
+    ctx.fillText(text.text, text.x, text.y);
   }
   ctx.globalAlpha = 1;
 }
