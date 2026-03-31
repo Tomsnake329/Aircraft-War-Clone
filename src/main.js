@@ -874,7 +874,7 @@ function drawPauseOverlay() {
   ctx.fillText("Paused", GAME_WIDTH / 2, GAME_HEIGHT / 2 - 8);
   ctx.font = "20px Trebuchet MS, Segoe UI, sans-serif";
   ctx.fillStyle = "#b6c8dc";
-  ctx.fillText("Press P to resume", GAME_WIDTH / 2, GAME_HEIGHT / 2 + 28);
+  ctx.fillText("Press P or Esc to resume", GAME_WIDTH / 2, GAME_HEIGHT / 2 + 28);
 }
 
 function gameLoop(timestamp) {
