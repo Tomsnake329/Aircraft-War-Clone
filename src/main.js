@@ -878,7 +878,9 @@ function drawPauseOverlay() {
   ctx.fillText("Paused", GAME_WIDTH / 2, GAME_HEIGHT / 2 - 8);
   ctx.font = "20px Trebuchet MS, Segoe UI, sans-serif";
   ctx.fillStyle = "#b6c8dc";
-  const pauseHint = game.pauseReason === "focus-loss" ? "Auto-paused after focus loss" : "Press P or Esc to resume";
+  const pauseHint = game.pauseReason === "focus-loss"
+    ? "Auto-paused after focus loss"
+    : "Press P / Esc to resume · R to restart";
   ctx.fillText(pauseHint, GAME_WIDTH / 2, GAME_HEIGHT / 2 + 28);
 }
 
