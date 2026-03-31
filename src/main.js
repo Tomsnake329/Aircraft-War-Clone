@@ -101,6 +101,22 @@ function startGame() {
   resetGame();
 }
 
+function togglePause() {
+  if (game.state === "playing") {
+    game.state = "paused";
+    game.input.up = false;
+    game.input.down = false;
+    game.input.left = false;
+    game.input.right = false;
+    return;
+  }
+
+  if (game.state === "paused") {
+    game.state = "playing";
+    game.lastTime = performance.now();
+  }
+}
+
 function endGame() {
   game.state = "gameover";
   game.bestScore = Math.max(game.bestScore, game.score);
@@ -352,6 +368,10 @@ function addExplosion(x, y, color, size = 1) {
 function update(deltaSeconds) {
   updateStars(deltaSeconds);
   updateEffects(deltaSeconds);
+
+  if (game.state === "paused") {
+    return;
+  }
 
   if (game.state !== "playing") {
     updateExplosions(deltaSeconds);
@@ -626,6 +646,7 @@ function draw() {
   drawExplosions();
   ctx.restore();
   drawDamageFlash();
+  drawPauseOverlay();
 }
 
 function drawBackground() {
@@ -806,6 +827,22 @@ function drawDamageFlash() {
   ctx.globalAlpha = 1;
 }
 
+function drawPauseOverlay() {
+  if (game.state !== "paused") {
+    return;
+  }
+
+  ctx.fillStyle = "rgba(3, 10, 20, 0.5)";
+  ctx.fillRect(0, 0, GAME_WIDTH, GAME_HEIGHT);
+  ctx.textAlign = "center";
+  ctx.fillStyle = "#eef6ff";
+  ctx.font = "bold 42px Trebuchet MS, Segoe UI, sans-serif";
+  ctx.fillText("Paused", GAME_WIDTH / 2, GAME_HEIGHT / 2 - 8);
+  ctx.font = "20px Trebuchet MS, Segoe UI, sans-serif";
+  ctx.fillStyle = "#b6c8dc";
+  ctx.fillText("Press P to resume", GAME_WIDTH / 2, GAME_HEIGHT / 2 + 28);
+}
+
 function gameLoop(timestamp) {
   const deltaSeconds = Math.min(0.033, (timestamp - game.lastTime) / 1000 || 0);
   game.lastTime = timestamp;
@@ -835,6 +872,14 @@ function setInputDirection(key, pressed) {
 
 window.addEventListener("keydown", (event) => {
   const key = event.key.toLowerCase();
+
+  if (key === "p") {
+    event.preventDefault();
+    if (game.state === "playing" || game.state === "paused") {
+      togglePause();
+    }
+    return;
+  }
 
   if (key === " " || key === "enter") {
     event.preventDefault();
