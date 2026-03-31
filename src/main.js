@@ -15,6 +15,7 @@ const startButton = document.getElementById("startButton");
 const restartButton = document.getElementById("restartButton");
 
 const STORAGE_KEY = "sky-patrol-prototype-best-score";
+const BEST_TIME_KEY = "sky-patrol-prototype-best-time";
 const GAME_WIDTH = canvas.width;
 const GAME_HEIGHT = canvas.height;
 
@@ -28,6 +29,7 @@ const game = {
   elapsed: 0,
   score: 0,
   bestScore: Number(localStorage.getItem(STORAGE_KEY) || 0),
+  bestTime: Number(localStorage.getItem(BEST_TIME_KEY) || 0),
   pointerActive: false,
   stars: createStars(48),
   player: null,
@@ -106,6 +108,10 @@ function resetGame() {
   hideOverlay(gameOverOverlay);
 }
 
+function formatSeconds(value) {
+  return `${Number(value || 0).toFixed(1)}s`;
+}
+
 function startGame() {
   resetGame();
 }
@@ -129,9 +135,11 @@ function togglePause() {
 function endGame() {
   game.state = "gameover";
   game.bestScore = Math.max(game.bestScore, game.score);
+  game.bestTime = Math.max(game.bestTime, game.elapsed);
   localStorage.setItem(STORAGE_KEY, String(game.bestScore));
+  localStorage.setItem(BEST_TIME_KEY, String(game.bestTime));
   bestValue.textContent = String(game.bestScore);
-  gameOverSummary.textContent = `Score: ${game.score} | Best: ${game.bestScore}`;
+  gameOverSummary.textContent = `Score: ${game.score} | Best: ${game.bestScore} | Time: ${formatSeconds(game.elapsed)} | Best Time: ${formatSeconds(game.bestTime)}`;
   showOverlay(gameOverOverlay);
 }
 
