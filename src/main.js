@@ -941,6 +941,18 @@ window.addEventListener("keyup", (event) => {
   setInputDirection(event.key.toLowerCase(), false);
 });
 
+document.addEventListener("visibilitychange", () => {
+  if (document.hidden && game.state === "playing") {
+    togglePause();
+  }
+});
+
+window.addEventListener("blur", () => {
+  if (game.state === "playing") {
+    togglePause();
+  }
+});
+
 canvas.addEventListener("pointerdown", (event) => {
   game.pointerActive = true;
   canvas.setPointerCapture(event.pointerId);
