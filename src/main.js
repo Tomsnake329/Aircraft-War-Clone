@@ -296,6 +296,15 @@ function damagePlayer(amount) {
   player.hp -= amount;
   player.invulnerableTimer = 1.1;
   addExplosion(player.x, player.y, "#ff6b6b");
+
+  const clearRadius = 110;
+  for (const enemy of game.enemies) {
+    const distance = Math.hypot(enemy.x - player.x, enemy.y - player.y);
+    if (enemy.hp > 0 && distance <= clearRadius) {
+      enemy.hp = 0;
+      addExplosion(enemy.x, enemy.y, "#ffd166");
+    }
+  }
 }
 
 function intersects(a, b) {
