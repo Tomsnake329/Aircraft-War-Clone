@@ -40,6 +40,10 @@ const game = {
   explosions: [],
   screenFlash: 0,
   screenShake: 0,
+  surgeBannerTimer: 0,
+  surgeTimer: 0,
+  surgeFollowupTimer: 0,
+  lastThreatLevel: 0,
   pauseReason: "manual",
   input: {
     up: false,
@@ -97,7 +101,11 @@ function resetGame() {
   game.score = 0;
   game.screenFlash = 0;
   game.screenShake = 0;
+  game.surgeBannerTimer = 0;
+  game.surgeTimer = 0;
+  game.surgeFollowupTimer = 0;
   game.pauseReason = "manual";
+  game.lastThreatLevel = 0;
   game.state = "playing";
   game.lastTime = performance.now();
   scoreValue.textContent = "0";
@@ -165,7 +173,8 @@ function getThreatLevel() {
 
 function getSpawnInterval() {
   const level = getThreatLevel();
-  return Math.max(0.42, 1.15 - level * 0.08);
+  const baseInterval = Math.max(0.42, 1.15 - level * 0.08);
+  return game.surgeTimer > 0 ? Math.max(0.3, baseInterval * 0.82) : baseInterval;
 }
 
 function getNextTierTarget() {
@@ -262,6 +271,54 @@ function spawnHeavyPattern(level) {
       enemyConfig: createEnemyConfig("scout", centerX),
     });
   }
+}
+
+function spawnSurgePattern(level) {
+  const centerX = GAME_WIDTH / 2;
+  const sideOffset = 118;
+
+  addWarning({
+    x: centerX,
+    y: 42,
+    delay: 0.52,
+    enemyConfig: createEnemyConfig(level >= 4 ? "tank" : "zigzag", centerX),
+    big: true,
+  });
+
+  addWarning({
+    x: centerX - sideOffset,
+    y: 54,
+    delay: 0.28,
+    enemyConfig: createEnemyConfig("zigzag", centerX - sideOffset, { zigzagPhase: 0.5 }),
+  });
+  addWarning({
+    x: centerX + sideOffset,
+    y: 54,
+    delay: 0.34,
+    enemyConfig: createEnemyConfig("zigzag", centerX + sideOffset, { zigzagPhase: 1.3 }),
+  });
+
+  addWarning({
+    x: centerX - 54,
+    y: 82,
+    delay: 0.72,
+    enemyConfig: createEnemyConfig("scout", centerX - 54),
+  });
+  addWarning({
+    x: centerX + 54,
+    y: 82,
+    delay: 0.78,
+    enemyConfig: createEnemyConfig("scout", centerX + 54),
+  });
+}
+
+function triggerThreatSurge(level) {
+  game.surgeBannerTimer = 2.1;
+  game.surgeTimer = 6;
+  game.surgeFollowupTimer = 2.2;
+  game.screenFlash = Math.max(game.screenFlash, 0.12);
+  game.screenShake = Math.max(game.screenShake, 6);
+  spawnSurgePattern(level);
 }
 
 function addWarning({ x, y, delay, enemyConfig, big = false }) {
@@ -407,6 +464,20 @@ function update(deltaSeconds) {
   game.elapsed += deltaSeconds;
   updateWarnings(deltaSeconds);
 
+  const threatLevel = getThreatLevel();
+  if (threatLevel > game.lastThreatLevel) {
+    game.lastThreatLevel = threatLevel;
+    triggerThreatSurge(threatLevel);
+  }
+
+  if (game.surgeTimer > 0) {
+    game.surgeFollowupTimer -= deltaSeconds;
+    if (game.surgeFollowupTimer <= 0) {
+      spawnSurgeFollowupPattern(threatLevel);
+      game.surgeFollowupTimer = Number.POSITIVE_INFINITY;
+    }
+  }
+
   const player = game.player;
   player.invulnerableTimer = Math.max(0, player.invulnerableTimer - deltaSeconds);
   player.hitFlash = Math.max(0, player.hitFlash - deltaSeconds);
@@ -446,7 +517,7 @@ function update(deltaSeconds) {
     player.weapon.mode === "spread" ? `Spread ${player.weapon.timer.toFixed(1)}s` : "Standard";
   nextTierValue.textContent = `${Math.max(0, getNextTierTarget() - game.score)} pts`;
   timeValue.textContent = `${game.elapsed.toFixed(1)}s`;
-  threatValue.textContent = `Lv ${getThreatLevel()}`;
+  threatValue.textContent = `Lv ${threatLevel}`;
 
   if (player.hp <= 0) {
     endGame();
@@ -529,6 +600,52 @@ function updateStars(deltaSeconds) {
 function updateEffects(deltaSeconds) {
   game.screenFlash = Math.max(0, game.screenFlash - deltaSeconds * 2.8);
   game.screenShake = Math.max(0, game.screenShake - deltaSeconds * 18);
+  game.surgeBannerTimer = Math.max(0, game.surgeBannerTimer - deltaSeconds);
+  game.surgeTimer = Math.max(0, game.surgeTimer - deltaSeconds);
+}
+
+function spawnSurgeFollowupPattern(level) {
+  const leftX = 78;
+  const rightX = GAME_WIDTH - 78;
+  const centerX = GAME_WIDTH / 2;
+
+  addWarning({
+    x: leftX,
+    y: 40,
+    delay: 0.26,
+    enemyConfig: createEnemyConfig("zigzag", leftX, { zigzagPhase: 0.2 }),
+    big: true,
+  });
+  addWarning({
+    x: rightX,
+    y: 40,
+    delay: 0.32,
+    enemyConfig: createEnemyConfig("zigzag", rightX, { zigzagPhase: 1.0 }),
+    big: true,
+  });
+
+  if (level >= 4) {
+    addWarning({
+      x: centerX,
+      y: 58,
+      delay: 0.68,
+      enemyConfig: createEnemyConfig("tank", centerX, { dropPowerUp: false }),
+      big: true,
+    });
+  } else {
+    addWarning({
+      x: centerX - 56,
+      y: 74,
+      delay: 0.62,
+      enemyConfig: createEnemyConfig("scout", centerX - 56),
+    });
+    addWarning({
+      x: centerX + 56,
+      y: 74,
+      delay: 0.68,
+      enemyConfig: createEnemyConfig("scout", centerX + 56),
+    });
+  }
 }
 
 function updateExplosions(deltaSeconds) {
@@ -668,6 +785,7 @@ function draw() {
   ctx.save();
   ctx.translate(shakeX, shakeY);
   drawWarnings();
+  drawDangerIndicators();
   drawPowerUps();
   drawBullets();
   drawEnemies();
@@ -675,6 +793,8 @@ function draw() {
   drawExplosions();
   ctx.restore();
   drawDamageFlash();
+  drawSurgeRails();
+  drawSurgeBanner();
   drawPauseOverlay();
 }
 
@@ -712,6 +832,40 @@ function drawWarnings() {
     ctx.fillRect(warning.x - width / 2, warning.y, width, height);
     ctx.fillRect(warning.x - 2, warning.y + height, 4, 22);
   }
+  ctx.globalAlpha = 1;
+}
+
+function drawDangerIndicators() {
+  const imminentEnemies = game.enemies.filter((enemy) => enemy.y > GAME_HEIGHT * 0.58 && enemy.hp > 0);
+  if (imminentEnemies.length === 0) {
+    return;
+  }
+
+  const strongestThreat = imminentEnemies.reduce((max, enemy) => {
+    const threat = enemy.type === "tank" ? 1 : 0.65;
+    return Math.max(max, threat);
+  }, 0);
+  const pulse = 0.35 + Math.abs(Math.sin(game.elapsed * 8)) * 0.3;
+
+  ctx.globalAlpha = pulse * strongestThreat;
+  ctx.fillStyle = strongestThreat > 0.9 ? "#ff9f43" : "#ff6b6b";
+  ctx.fillRect(0, GAME_HEIGHT - 16, GAME_WIDTH, 16);
+
+  for (const enemy of imminentEnemies) {
+    const arrowX = clamp(enemy.x, 18, GAME_WIDTH - 18);
+    const arrowY = GAME_HEIGHT - 26;
+    const size = enemy.type === "tank" ? 12 : 9;
+
+    ctx.globalAlpha = pulse * (enemy.type === "tank" ? 1 : 0.85);
+    ctx.fillStyle = enemy.type === "tank" ? "#ffd166" : "#ff6b6b";
+    ctx.beginPath();
+    ctx.moveTo(arrowX, arrowY + size);
+    ctx.lineTo(arrowX - size, arrowY - size);
+    ctx.lineTo(arrowX + size, arrowY - size);
+    ctx.closePath();
+    ctx.fill();
+  }
+
   ctx.globalAlpha = 1;
 }
 
@@ -862,6 +1016,59 @@ function drawDamageFlash() {
   ctx.globalAlpha = game.screenFlash * 0.45;
   ctx.fillStyle = "#ffb3b3";
   ctx.fillRect(0, 0, GAME_WIDTH, GAME_HEIGHT);
+  ctx.globalAlpha = 1;
+}
+
+function drawSurgeBanner() {
+  if (game.surgeBannerTimer <= 0 || game.state !== "playing") {
+    return;
+  }
+
+  const alpha = Math.min(1, game.surgeBannerTimer) * 0.95;
+  const topY = 20;
+  ctx.globalAlpha = alpha;
+  ctx.fillStyle = "rgba(255, 159, 67, 0.2)";
+  ctx.fillRect(42, topY, GAME_WIDTH - 84, 42);
+  ctx.strokeStyle = "#ffd166";
+  ctx.lineWidth = 2;
+  ctx.strokeRect(42, topY, GAME_WIDTH - 84, 42);
+  ctx.textAlign = "center";
+  ctx.fillStyle = "#fff4cf";
+  ctx.font = "bold 22px Trebuchet MS, Segoe UI, sans-serif";
+  ctx.fillText(`Threat Surge Lv ${game.lastThreatLevel}`, GAME_WIDTH / 2, topY + 28);
+  ctx.globalAlpha = 1;
+}
+
+function drawSurgeRails() {
+  if (game.surgeTimer <= 0 || game.state !== "playing") {
+    return;
+  }
+
+  const alpha = 0.15 + Math.abs(Math.sin(game.elapsed * 10)) * 0.18;
+  const railHeight = GAME_HEIGHT - 110;
+
+  ctx.globalAlpha = alpha;
+  ctx.fillStyle = "#ff6b6b";
+  ctx.fillRect(0, 74, 12, railHeight);
+  ctx.fillRect(GAME_WIDTH - 12, 74, 12, railHeight);
+
+  ctx.fillStyle = "#ffd166";
+  for (let y = 92; y < GAME_HEIGHT - 36; y += 56) {
+    ctx.beginPath();
+    ctx.moveTo(18, y);
+    ctx.lineTo(36, y + 12);
+    ctx.lineTo(18, y + 24);
+    ctx.closePath();
+    ctx.fill();
+
+    ctx.beginPath();
+    ctx.moveTo(GAME_WIDTH - 18, y);
+    ctx.lineTo(GAME_WIDTH - 36, y + 12);
+    ctx.lineTo(GAME_WIDTH - 18, y + 24);
+    ctx.closePath();
+    ctx.fill();
+  }
+
   ctx.globalAlpha = 1;
 }
 
