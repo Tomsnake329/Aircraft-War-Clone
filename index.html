@@ -7,7 +7,7 @@
   <link rel="stylesheet" href="./styles.css">
 </head>
 <body>
-  <div class="app-shell">
+  <div class="app-shell theme-art">
     <header class="topbar">
       <div>
         <p class="eyebrow">First Pass Browser Prototype</p>
@@ -19,21 +19,22 @@
     </header>
 
     <main class="game-layout">
-      <section class="hud-card">
+      <section class="hud-card art-panel">
+        <div class="panel-art panel-art--hud" aria-hidden="true"></div>
         <div class="hud-row">
           <span>Score</span>
           <strong id="scoreValue">0</strong>
         </div>
-        <div class="hud-row">
-          <span>HP</span>
+        <div class="hud-row hud-row--with-icon">
+          <span><span class="hud-inline-icon hud-inline-icon--hp" aria-hidden="true"></span>HP</span>
           <strong id="hpValue">5</strong>
         </div>
         <div class="hud-row">
           <span>Best</span>
           <strong id="bestValue">0</strong>
         </div>
-        <div class="hud-row">
-          <span>Weapon</span>
+        <div class="hud-row hud-row--with-icon">
+          <span><span class="hud-inline-icon hud-inline-icon--weapon" aria-hidden="true"></span>Weapon</span>
           <strong id="powerValue">Standard</strong>
         </div>
         <div class="hud-row">
@@ -56,7 +57,9 @@
           <canvas id="gameCanvas" width="480" height="800" aria-label="Sky Patrol Prototype game area"></canvas>
 
           <div class="overlay visible" id="startOverlay">
-            <div class="panel">
+            <div class="panel art-panel art-panel--start">
+              <div class="panel-art panel-art--start" aria-hidden="true"></div>
+              <div class="panel-logo" aria-hidden="true"></div>
               <p class="eyebrow">Mission Briefing</p>
               <h2>Sky Patrol Prototype</h2>
               <p>Hold the line, dodge incoming craft, and survive as long as you can.</p>
@@ -66,7 +69,8 @@
           </div>
 
           <div class="overlay" id="gameOverOverlay">
-            <div class="panel">
+            <div class="panel art-panel art-panel--gameover">
+              <div class="panel-art panel-art--gameover" aria-hidden="true"></div>
               <p class="eyebrow">Run Complete</p>
               <h2>Game Over</h2>
               <p id="gameOverSummary">Score: 0</p>

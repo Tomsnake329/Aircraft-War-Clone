@@ -1,0 +1,216 @@
+Aircraft War Clone｜B方案美術素材產圖提示詞
+
+使用原則
+- 方向：portrait 手機街機空戰、乾淨 arcade sci-fi、原創風格、不要任何既有 IP 既視感
+- 共通要求：top-down / vertical shooter readable silhouette, clean outline, high contrast, transparent background, centered subject, no watermark, no text, no UI, no frame, no mockup
+- 色彩原則：玩家偏藍青白、敵人偏紅橘紫、補給偏亮黃/青綠，確保小尺寸也能辨識
+- 產圖建議：先單物件透明底 PNG 素材，再視需要做發光版 / 受擊版 / 爆炸版
+
+==================================================
+1. 玩家主機（主圖）
+==================================================
+用途：遊戲內玩家飛機主體
+
+提示詞：
+Original top-down player fighter aircraft for a vertical scrolling arcade shooter, compact futuristic jet, blue cyan white color scheme, sharp but simple silhouette, readable at small mobile size, heroic but lightweight design, clean sci-fi panel lines, glowing cockpit, twin engine accents, transparent background, centered single object, high contrast, polished 2D game asset, no text, no watermark
+
+可加強版：
+Original top-down player fighter aircraft, arcade mobile shooter style, strong silhouette readability, simplified details for small-screen gameplay, blue cyan white body, subtle emissive edges, transparent background, isolated sprite sheet style concept, no text, no watermark
+
+==================================================
+2. 玩家主機受擊閃白版
+==================================================
+用途：受傷時短暫閃爍素材參考
+
+提示詞：
+Top-down player fighter aircraft hit-flash variant for a mobile arcade shooter, same silhouette as a compact futuristic blue fighter, mostly bright white with cyan edge glow, damage flash look, transparent background, centered isolated object, high readability, no text, no watermark
+
+==================================================
+3. 玩家子彈（標準射擊）
+==================================================
+用途：一般連發子彈
+
+提示詞：
+Top-down arcade shooter player bullet sprite, slim fast plasma shot, cyan white energy core, subtle glow, extremely readable at tiny size, transparent background, centered isolated projectile, clean 2D game asset, no text, no watermark
+
+==================================================
+4. Rapid Fire 補給圖示 / 掉落物
+==================================================
+用途：快速射擊 power-up pickup
+
+提示詞：
+Top-down arcade shooter power-up pickup icon for rapid fire, small floating sci-fi capsule with cyan and yellow glow, lightning or speed motif, highly readable at tiny size, collectible item for mobile vertical shooter, transparent background, centered isolated object, clean 2D game asset, no text, no watermark
+
+備用更明確版本：
+Arcade shooter power-up pickup for rapid fire mode, floating energy core with compact mechanical casing, blue cyan body, yellow speed streak accents, fast-fire theme, high contrast, readable on a mobile screen, transparent background, isolated sprite, no text, no watermark
+
+==================================================
+5. Spread Shot 補給圖示 / 掉落物
+==================================================
+用途：散射武器 power-up pickup
+
+提示詞：
+Top-down arcade shooter power-up pickup icon for spread shot, floating sci-fi pickup with three-way shot motif, cyan and orange energy highlights, collectible item, clear silhouette, readable at tiny mobile size, transparent background, centered isolated object, clean 2D game asset, no text, no watermark
+
+備用更明確版本：
+Arcade shooter spread shot pickup, futuristic floating module with triangular triple-burst symbol shape, bright cyan body with orange highlights, high contrast, designed for a vertical shooter mobile game, transparent background, isolated sprite, no text, no watermark
+
+==================================================
+6. 小型敵機（基礎雜兵）
+==================================================
+用途：最常見敵人
+
+提示詞：
+Original top-down enemy scout ship for a vertical arcade shooter, compact hostile drone fighter, red orange dark gray color scheme, aggressive silhouette, simple readable wings, small mobile-game-friendly detail density, transparent background, centered isolated object, clean 2D game asset, no text, no watermark
+
+==================================================
+7. 中型敵機（較硬 / 重裝）
+==================================================
+用途：更高血量、可能掉補給
+
+提示詞：
+Original top-down heavy enemy gunship for a mobile vertical shooter, larger armored hostile aircraft, red orange purple dark metal color scheme, bulky center mass, threatening silhouette, readable at small screen size, capable of dropping power-ups, transparent background, centered isolated object, polished 2D game asset, no text, no watermark
+
+==================================================
+8. 進階敵機 / 特殊波次敵人
+==================================================
+用途：做波次變化與視覺層次
+
+提示詞：
+Original top-down elite enemy interceptor for an arcade scrolling shooter, sleek but dangerous hostile craft, magenta red purple palette, sharper silhouette than basic enemy, premium threat look, readable on portrait mobile screen, transparent background, centered isolated object, clean 2D game asset, no text, no watermark
+
+==================================================
+9. 敵方子彈（標準）
+==================================================
+用途：敵機一般射彈
+
+提示詞：
+Top-down arcade shooter enemy bullet sprite, small hostile plasma orb, red orange glowing core, high readability at tiny size, transparent background, centered isolated projectile, clean 2D game asset, no text, no watermark
+
+==================================================
+10. 玩家命中特效（小型 hit spark）
+==================================================
+用途：子彈打中敵人時的瞬間特效
+
+提示詞：
+Small sci-fi hit spark effect for a 2D arcade shooter, bright yellow orange white impact burst, compact star-shaped energy spark, transparent background, isolated VFX sprite, readable at small size, no text, no watermark
+
+==================================================
+11. 小型爆炸特效
+==================================================
+用途：一般敵機爆炸
+
+提示詞：
+Small explosion effect for a top-down arcade shooter, stylized orange yellow white blast with a little smoke and debris, readable at small mobile size, transparent background, isolated VFX sprite, polished 2D game effect, no text, no watermark
+
+==================================================
+12. 中型爆炸特效
+==================================================
+用途：中型敵機或更大破壞感
+
+提示詞：
+Medium explosion effect for an arcade sci-fi shooter, layered fireball with orange yellow white core, debris fragments and brief smoke ring, dramatic but clean 2D game VFX, transparent background, isolated sprite, no text, no watermark
+
+==================================================
+13. 玩家受擊火花 / 護甲受損特效
+==================================================
+用途：玩家被打到時回饋
+
+提示詞：
+Arcade shooter player damage effect, sharp cyan white and orange spark burst, light armor hit feedback, readable on a mobile portrait screen, transparent background, isolated VFX sprite, no text, no watermark
+
+==================================================
+14. 背景主圖（第一關天空戰場）
+==================================================
+用途：縱向卷軸背景基底
+
+提示詞：
+Original vertical scrolling shooter background, high-altitude sky battlefield above clouds, clean arcade sci-fi atmosphere, soft blue sky gradient, layered cloud formations, subtle distant structures and flight lanes, designed to keep gameplay readable, portrait mobile composition, no characters, no text, polished 2D game background
+
+==================================================
+15. 背景點綴（遠景雲層 / 航跡層）
+==================================================
+用途：背景疊加層，增加速度感
+
+提示詞：
+Arcade shooter parallax background layer, semi-transparent cloud streaks and high-altitude wind trails, subtle motion-friendly design, clean portrait shooter readability, soft blue white tones, no text, no watermark, suitable as overlay layer
+
+==================================================
+16. 標題 Logo 概念圖
+==================================================
+用途：之後可重繪字樣或參考氣質
+
+提示詞：
+Original logo concept for a mobile arcade airplane shooter called Sky Patrol Prototype, sleek sci-fi arcade typography, energetic but clean, blue cyan white with subtle orange accent, readable on a portrait game title screen, no background clutter, polished game branding concept
+
+注意：如果不想讓模型直接產字，可以改成只產「logo style concept panel」參考氣質，不拿文字本身當最終素材。
+
+==================================================
+17. Start Mission 按鈕底圖 / UI panel
+==================================================
+用途：標題畫面與主要按鈕底板
+
+提示詞：
+Futuristic arcade game UI button panel, clean sci-fi rounded rectangle with cyan blue glow accents, designed for a portrait mobile shooter interface, transparent background, isolated UI asset, high readability, no text, no watermark
+
+==================================================
+18. HUD 面板底圖（分數 / HP / 武器狀態）
+==================================================
+用途：上方 HUD 背板
+
+提示詞：
+Minimal futuristic HUD panel for a mobile vertical shooter, transparent sci-fi overlay panel with cyan white accents, clean edges, supports score HP and weapon status, readable but lightweight, transparent background, isolated UI element, no text, no watermark
+
+==================================================
+19. HP 圖示
+==================================================
+用途：生命值圖示
+
+提示詞：
+Simple futuristic health icon for an arcade shooter HUD, glowing shield-heart hybrid symbol, cyan white clean sci-fi style, readable at tiny size, transparent background, isolated UI icon, no text, no watermark
+
+==================================================
+20. 武器狀態小圖示（Rapid / Spread）
+==================================================
+用途：HUD 上武器狀態
+
+Rapid 提示詞：
+Tiny arcade shooter HUD icon for rapid fire, speed-themed sci-fi symbol, cyan yellow glow, readable at very small size, transparent background, isolated UI icon, no text, no watermark
+
+Spread 提示詞：
+Tiny arcade shooter HUD icon for spread shot, three-way burst symbol, cyan orange glow, readable at very small size, transparent background, isolated UI icon, no text, no watermark
+
+==================================================
+21. Game Over 面板底圖
+==================================================
+用途：失敗結算畫面
+
+提示詞：
+Arcade sci-fi game over panel background, dramatic but clean futuristic UI frame, dark navy with red orange warning accents, portrait mobile shooter style, transparent background or simple dark backdrop, no text, polished 2D game UI asset
+
+==================================================
+22. 可選補充：Boss 敵機概念圖
+==================================================
+用途：如果後面要擴充 boss 波次
+
+提示詞：
+Original top-down boss aircraft for a vertical arcade shooter, large armored enemy command ship, red purple black palette, intimidating silhouette, readable weak-point structure, high-contrast design for mobile portrait gameplay, transparent background, centered isolated object, polished 2D game asset, no text, no watermark
+
+==================================================
+建議產圖順序（先做最有價值的）
+==================================================
+1. 玩家主機
+2. 小型敵機
+3. 中型敵機
+4. 玩家子彈
+5. 敵方子彈
+6. Rapid Fire pickup
+7. Spread Shot pickup
+8. 小型爆炸
+9. 中型爆炸
+10. HUD 面板與武器小圖示
+11. 背景主圖
+12. Game Over 面板
+
+如果某張圖生成結果太花或太難辨識，就補一條負面要求：
+- avoid clutter, avoid tiny unreadable details, avoid realistic perspective, avoid busy background, keep silhouette simple and readable at small size

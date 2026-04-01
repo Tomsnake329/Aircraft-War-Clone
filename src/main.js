@@ -20,6 +20,7 @@ const GAME_WIDTH = canvas.width;
 const GAME_HEIGHT = canvas.height;
 
 const BASE_FIRE_INTERVAL = 0.22;
+const spriteLibrary = createSpriteLibrary();
 const POWERUP_DEFS = {
   spread: {
     label: "Spread",
@@ -74,6 +75,64 @@ powerValue.textContent = "Standard";
 nextTierValue.textContent = "90 pts";
 timeValue.textContent = "0.0s";
 threatValue.textContent = "Lv 0";
+
+function createSpriteLibrary() {
+  const assets = {
+    player: './assets/images/processed/player.png',
+    playerHit: './assets/images/processed/player_hit.png',
+    playerShieldHit: './assets/images/processed/shield_hit.png',
+    playerBullet: './assets/images/processed/player_bullet.png',
+    enemyScout: './assets/images/processed/enemy_scout.png',
+    enemyTank: './assets/images/processed/enemy_tank.png',
+    enemyElite: './assets/images/processed/enemy_elite.png',
+    enemyBoss: './assets/images/processed/enemy_boss.png',
+    enemyBullet: './assets/images/processed/enemy_bullet.png',
+    hitSpark: './assets/images/hit-spark.jpg',
+    explosionSmall: './assets/images/processed/explosion_small.png',
+    explosionMedium: './assets/images/processed/explosion_medium.png',
+    powerupRapid: './assets/images/processed/powerup_rapid.png',
+    powerupSpread: './assets/images/processed/powerup_spread.png',
+    weaponRapid: './assets/images/weapon-rapid.jpg',
+    weaponSpread: './assets/images/weapon-spread.jpg',
+    iconHp: './assets/images/icon-hp.jpg',
+  };
+
+  const images = {};
+  for (const [key, src] of Object.entries(assets)) {
+    const image = new Image();
+    image.decoding = 'async';
+    image.src = src;
+    images[key] = image;
+  }
+  return images;
+}
+
+function drawImageCover(image, x, y, width, height, alpha = 1) {
+  if (!image || !image.complete || !image.naturalWidth) {
+    return false;
+  }
+
+  const sourceRatio = image.naturalWidth / image.naturalHeight;
+  const targetRatio = width / height;
+  let sx = 0;
+  let sy = 0;
+  let sw = image.naturalWidth;
+  let sh = image.naturalHeight;
+
+  if (sourceRatio > targetRatio) {
+    sw = image.naturalHeight * targetRatio;
+    sx = (image.naturalWidth - sw) / 2;
+  } else {
+    sh = image.naturalWidth / targetRatio;
+    sy = (image.naturalHeight - sh) / 2;
+  }
+
+  ctx.save();
+  ctx.globalAlpha *= alpha;
+  ctx.drawImage(image, sx, sy, sw, sh, x, y, width, height);
+  ctx.restore();
+  return true;
+}
 
 function createPlayer() {
   return {
@@ -132,6 +191,7 @@ function resetGame() {
   nextTierValue.textContent = `${getNextTierTarget()} pts`;
   timeValue.textContent = "0.0s";
   threatValue.textContent = `Lv ${getThreatLevel()}`;
+  updateHudArt();
   hideOverlay(startOverlay);
   hideOverlay(gameOverOverlay);
 }
@@ -203,6 +263,11 @@ function getNextTierTarget() {
 function queueEnemyWave() {
   const level = getThreatLevel();
   const patternRoll = Math.random();
+
+  if (level >= 6 && patternRoll > 0.88) {
+    spawnBossPattern(level);
+    return;
+  }
 
   if (level >= 2 && patternRoll > 0.74) {
     spawnHeavyPattern(level);
@@ -291,6 +356,33 @@ function spawnHeavyPattern(level) {
   }
 }
 
+function spawnBossPattern(level) {
+  const centerX = GAME_WIDTH / 2;
+
+  addWarning({
+    x: centerX,
+    y: 34,
+    delay: 0.88,
+    enemyConfig: createEnemyConfig('boss', centerX, { dropPowerUp: false }),
+    big: true,
+  });
+
+  addWarning({
+    x: centerX - 120,
+    y: 68,
+    delay: 0.42,
+    enemyConfig: createEnemyConfig('zigzag', centerX - 120, { zigzagPhase: 0.4 }),
+    big: true,
+  });
+  addWarning({
+    x: centerX + 120,
+    y: 68,
+    delay: 0.48,
+    enemyConfig: createEnemyConfig('zigzag', centerX + 120, { zigzagPhase: 1.1 }),
+    big: true,
+  });
+}
+
 function spawnSurgePattern(level) {
   const centerX = GAME_WIDTH / 2;
   const sideOffset = 118;
@@ -368,6 +460,24 @@ function createEnemyConfig(type, x, overrides = {}) {
       swayAmplitude: 18,
       swaySpeed: 1.2,
       dropPowerUp: Math.random() > 0.15,
+      ...overrides,
+    };
+  }
+
+  if (type === 'boss') {
+    return {
+      type,
+      x,
+      y: -120,
+      width: 110,
+      height: 104,
+      hp: 14 + level,
+      maxHp: 14 + level,
+      speed: 92 + level * 5,
+      scoreValue: 180 + level * 14,
+      swayAmplitude: 28,
+      swaySpeed: 0.9,
+      dropPowerUp: false,
       ...overrides,
     };
   }
@@ -550,6 +660,8 @@ function update(deltaSeconds) {
   if (player.hp <= 0) {
     endGame();
   }
+
+  updateHudArt();
 }
 
 function updatePlayerMovement(deltaSeconds) {
@@ -633,6 +745,17 @@ function getWeaponHudLabel() {
 
   const powerUpDef = POWERUP_DEFS[weapon.mode] || POWERUP_DEFS.spread;
   return `${powerUpDef.label} ${weapon.timer.toFixed(1)}s`;
+}
+
+function updateHudArt() {
+  const weaponIcon = document.querySelector('.hud-inline-icon--weapon');
+  if (!weaponIcon || !game.player) return;
+  const weapon = game.player.weapon.mode;
+  weaponIcon.style.backgroundImage = weapon === 'rapid'
+    ? "url('./assets/images/weapon-rapid.jpg')"
+    : weapon === 'spread'
+      ? "url('./assets/images/weapon-spread.jpg')"
+      : "url('./assets/images/player-bullet.jpg')";
 }
 
 function updateStars(deltaSeconds) {
@@ -724,9 +847,12 @@ function handleBulletCollisions() {
 
         if (enemy.hp <= 0) {
           game.score += enemy.scoreValue;
-          game.screenShake = Math.max(game.screenShake, enemy.type === "tank" ? 9 : 4);
-          addExplosion(enemy.x, enemy.y, enemy.type === "tank" ? "#ffd166" : "#ff8c42", enemy.type === "tank" ? 1.7 : 1.05);
-          if (enemy.dropPowerUp) {
+          game.screenShake = Math.max(game.screenShake, enemy.type === "boss" ? 12 : enemy.type === "tank" ? 9 : 4);
+          addExplosion(enemy.x, enemy.y, enemy.type === "boss" ? "#ffd166" : enemy.type === "tank" ? "#ffd166" : "#ff8c42", enemy.type === "boss" ? 2.2 : enemy.type === "tank" ? 1.7 : 1.05);
+          if (enemy.type === 'boss') {
+            spawnPowerUp(enemy.x - 28, enemy.y, 'spread');
+            spawnPowerUp(enemy.x + 28, enemy.y + 12, 'rapid');
+          } else if (enemy.dropPowerUp) {
             spawnPowerUp(enemy.x, enemy.y, Math.random() > 0.5 ? "spread" : "rapid");
           }
         }
@@ -846,6 +972,7 @@ function draw() {
   drawExplosions();
   ctx.restore();
   drawDamageFlash();
+  drawBossIntro();
   drawSurgeWarning();
   drawSurgeRails();
   drawSurgeBanner();
@@ -853,10 +980,21 @@ function draw() {
 }
 
 function drawBackground() {
-  const gradient = ctx.createLinearGradient(0, 0, 0, GAME_HEIGHT);
-  gradient.addColorStop(0, "#081425");
-  gradient.addColorStop(1, "#133456");
-  ctx.fillStyle = gradient;
+  const usedArt = drawImageCover(spriteLibrary.enemyBoss, 0, 0, GAME_WIDTH, GAME_HEIGHT, 0.08);
+  const usedBackdrop = drawImageCover(spriteLibrary.playerShieldHit, 0, 0, GAME_WIDTH, GAME_HEIGHT, 0.08);
+
+  if (!usedArt && !usedBackdrop) {
+    const gradient = ctx.createLinearGradient(0, 0, 0, GAME_HEIGHT);
+    gradient.addColorStop(0, "#081425");
+    gradient.addColorStop(1, "#133456");
+    ctx.fillStyle = gradient;
+    ctx.fillRect(0, 0, GAME_WIDTH, GAME_HEIGHT);
+  }
+
+  const overlay = ctx.createLinearGradient(0, 0, 0, GAME_HEIGHT);
+  overlay.addColorStop(0, 'rgba(8, 20, 37, 0.82)');
+  overlay.addColorStop(1, 'rgba(19, 52, 86, 0.9)');
+  ctx.fillStyle = overlay;
   ctx.fillRect(0, 0, GAME_WIDTH, GAME_HEIGHT);
 
   ctx.fillStyle = "rgba(255,255,255,0.035)";
@@ -887,6 +1025,23 @@ function drawWarnings() {
     ctx.fillRect(warning.x - 2, warning.y + height, 4, 22);
   }
   ctx.globalAlpha = 1;
+}
+
+function drawBossIntro() {
+  const boss = game.enemies.find((enemy) => enemy.type === 'boss' && enemy.hp > 0);
+  if (!boss) return;
+
+  const pulse = 0.28 + Math.abs(Math.sin(game.elapsed * 7)) * 0.18;
+  ctx.globalAlpha = pulse;
+  ctx.fillStyle = 'rgba(255, 90, 110, 0.22)';
+  ctx.fillRect(0, 0, GAME_WIDTH, 64);
+  ctx.fillRect(0, GAME_HEIGHT - 22, GAME_WIDTH, 22);
+  ctx.globalAlpha = 1;
+
+  ctx.textAlign = 'center';
+  ctx.fillStyle = '#ffd7df';
+  ctx.font = 'bold 26px Trebuchet MS, Segoe UI, sans-serif';
+  ctx.fillText('BOSS INBOUND', GAME_WIDTH / 2, 42);
 }
 
 function drawDangerIndicators() {
@@ -935,133 +1090,132 @@ function drawPlayer() {
   }
 
   if (player.weapon.mode === "spread") {
-    ctx.fillStyle = "rgba(143, 248, 255, 0.18)";
-    ctx.beginPath();
-    ctx.arc(player.x, player.y + 2, 34, 0, Math.PI * 2);
-    ctx.fill();
+    drawImageCover(spriteLibrary.weaponSpread, player.x - 34, player.y - 34, 68, 68, 0.2);
   }
 
   if (player.weapon.mode === "rapid") {
-    ctx.fillStyle = "rgba(255, 209, 102, 0.2)";
-    ctx.fillRect(player.x - 28, player.y - 4, 56, 8);
+    drawImageCover(spriteLibrary.weaponRapid, player.x - 34, player.y - 24, 68, 48, 0.26);
   }
 
   if (player.invulnerableTimer > 0) {
-    const shieldPulse = 0.25 + Math.abs(Math.sin(player.invulnerableTimer * 16)) * 0.35;
-    ctx.lineWidth = 3;
-    ctx.strokeStyle = `rgba(143, 248, 255, ${shieldPulse.toFixed(3)})`;
-    ctx.beginPath();
-    ctx.arc(player.x, player.y + 2, 28, 0, Math.PI * 2);
-    ctx.stroke();
+    const shieldPulse = 0.28 + Math.abs(Math.sin(player.invulnerableTimer * 16)) * 0.35;
+    drawImageCover(spriteLibrary.playerShieldHit, player.x - 34, player.y - 34, 68, 68, shieldPulse);
   }
 
-  ctx.save();
-  ctx.translate(player.x, player.y);
+  const playerImage = player.hitFlash > 0 ? spriteLibrary.playerHit : spriteLibrary.player;
+  const drewPlayerArt = drawImageCover(playerImage, player.x - 28, player.y - 34, 56, 68, 1);
 
-  ctx.fillStyle = player.hitFlash > 0 ? "#ffffff" : "#8af5ff";
-  ctx.beginPath();
-  ctx.moveTo(0, -player.height / 2);
-  ctx.lineTo(player.width / 2, player.height / 2);
-  ctx.lineTo(0, player.height / 4);
-  ctx.lineTo(-player.width / 2, player.height / 2);
-  ctx.closePath();
-  ctx.fill();
-
-  ctx.fillStyle = player.hitFlash > 0 ? "#ffdede" : "#ffe066";
-  ctx.fillRect(-5, -6, 10, 18);
-
-  ctx.fillStyle = "#ff8c42";
-  ctx.beginPath();
-  ctx.moveTo(-8, player.height / 2 - 4);
-  ctx.lineTo(0, player.height / 2 + 14);
-  ctx.lineTo(8, player.height / 2 - 4);
-  ctx.closePath();
-  ctx.fill();
+  if (!drewPlayerArt) {
+    ctx.save();
+    ctx.translate(player.x, player.y);
+    ctx.fillStyle = player.hitFlash > 0 ? "#ffffff" : "#8af5ff";
+    ctx.beginPath();
+    ctx.moveTo(0, -player.height / 2);
+    ctx.lineTo(player.width / 2, player.height / 2);
+    ctx.lineTo(0, player.height / 4);
+    ctx.lineTo(-player.width / 2, player.height / 2);
+    ctx.closePath();
+    ctx.fill();
+    ctx.fillStyle = player.hitFlash > 0 ? "#ffdede" : "#ffe066";
+    ctx.fillRect(-5, -6, 10, 18);
+    ctx.fillStyle = "#ff8c42";
+    ctx.beginPath();
+    ctx.moveTo(-8, player.height / 2 - 4);
+    ctx.lineTo(0, player.height / 2 + 14);
+    ctx.lineTo(8, player.height / 2 - 4);
+    ctx.closePath();
+    ctx.fill();
+    ctx.restore();
+  }
 
   const hpBarWidth = 44;
-  const hpBarY = -player.height / 2 - 14;
+  const hpBarY = player.y - player.height / 2 - 14;
   ctx.fillStyle = "rgba(0, 0, 0, 0.38)";
-  ctx.fillRect(-hpBarWidth / 2, hpBarY, hpBarWidth, 5);
+  ctx.fillRect(player.x - hpBarWidth / 2, hpBarY, hpBarWidth, 5);
   ctx.fillStyle = player.hp >= 3 ? "#68e0ff" : player.hp >= 2 ? "#ffd166" : "#ff6b6b";
-  ctx.fillRect(-hpBarWidth / 2, hpBarY, hpBarWidth * (player.hp / player.maxHp), 5);
+  ctx.fillRect(player.x - hpBarWidth / 2, hpBarY, hpBarWidth * (player.hp / player.maxHp), 5);
 
-  ctx.restore();
   ctx.globalAlpha = 1;
 }
 
 function drawBullets() {
   for (const bullet of game.bullets) {
-    ctx.fillStyle = bullet.color;
-    ctx.fillRect(bullet.x - bullet.width / 2, bullet.y - bullet.height / 2, bullet.width, bullet.height);
+    const drewBullet = drawImageCover(spriteLibrary.playerBullet, bullet.x - bullet.width * 1.3, bullet.y - bullet.height * 1.4, bullet.width * 2.6, bullet.height * 2.8, 0.92);
+    if (!drewBullet) {
+      ctx.fillStyle = bullet.color;
+      ctx.fillRect(bullet.x - bullet.width / 2, bullet.y - bullet.height / 2, bullet.width, bullet.height);
+    }
   }
 }
 
 function drawEnemies() {
   for (const enemy of game.enemies) {
-    ctx.save();
-    ctx.translate(enemy.x, enemy.y);
+    const sprite = enemy.type === 'boss'
+      ? spriteLibrary.enemyBoss
+      : enemy.type === 'tank'
+        ? spriteLibrary.enemyTank
+        : enemy.type === 'zigzag'
+          ? spriteLibrary.enemyElite
+          : spriteLibrary.enemyScout;
 
-    const isTank = enemy.type === "tank";
-    const hullColor = enemy.hitFlash > 0
-      ? "#ffffff"
-      : isTank
-        ? "#ffb347"
-        : enemy.type === "zigzag"
-          ? "#ff8f70"
-          : "#ff6b6b";
+    const drewEnemy = drawImageCover(sprite, enemy.x - enemy.width * 0.8, enemy.y - enemy.height * 0.9, enemy.width * 1.6, enemy.height * 1.8, enemy.hitFlash > 0 ? 0.74 : 1);
 
-    ctx.fillStyle = hullColor;
-    ctx.beginPath();
-    ctx.moveTo(0, enemy.height / 2);
-    ctx.lineTo(enemy.width / 2, -enemy.height / 2);
-    ctx.lineTo(0, -enemy.height / 4);
-    ctx.lineTo(-enemy.width / 2, -enemy.height / 2);
-    ctx.closePath();
-    ctx.fill();
-
-    ctx.fillStyle = isTank ? "#3b3752" : "#2d4059";
-    ctx.fillRect(-9, -7, 18, 14);
+    if (!drewEnemy) {
+      ctx.save();
+      ctx.translate(enemy.x, enemy.y);
+      const isTank = enemy.type === "tank";
+      const hullColor = enemy.hitFlash > 0
+        ? "#ffffff"
+        : isTank
+          ? "#ffb347"
+          : enemy.type === "zigzag"
+            ? "#ff8f70"
+            : "#ff6b6b";
+      ctx.fillStyle = hullColor;
+      ctx.beginPath();
+      ctx.moveTo(0, enemy.height / 2);
+      ctx.lineTo(enemy.width / 2, -enemy.height / 2);
+      ctx.lineTo(0, -enemy.height / 4);
+      ctx.lineTo(-enemy.width / 2, -enemy.height / 2);
+      ctx.closePath();
+      ctx.fill();
+      ctx.fillStyle = isTank ? "#3b3752" : "#2d4059";
+      ctx.fillRect(-9, -7, 18, 14);
+      ctx.restore();
+    }
 
     if (enemy.maxHp > 1) {
       const barWidth = enemy.width;
       ctx.fillStyle = "rgba(0, 0, 0, 0.35)";
-      ctx.fillRect(-barWidth / 2, -enemy.height / 2 - 10, barWidth, 4);
-      ctx.fillStyle = "#8ff8ff";
-      ctx.fillRect(-barWidth / 2, -enemy.height / 2 - 10, barWidth * (enemy.hp / enemy.maxHp), 4);
+      ctx.fillRect(enemy.x - barWidth / 2, enemy.y - enemy.height / 2 - 10, barWidth, 4);
+      ctx.fillStyle = enemy.type === 'boss' ? '#ffd166' : '#8ff8ff';
+      ctx.fillRect(enemy.x - barWidth / 2, enemy.y - enemy.height / 2 - 10, barWidth * (enemy.hp / enemy.maxHp), 4);
     }
-
-    ctx.restore();
   }
 }
 
 function drawPowerUps() {
   for (const powerUp of game.powerUps) {
     const bobOffset = Math.sin(powerUp.bob) * 4;
+    const sprite = powerUp.type === 'rapid' ? spriteLibrary.powerupRapid : spriteLibrary.powerupSpread;
     ctx.save();
     ctx.translate(powerUp.x, powerUp.y + bobOffset);
-    ctx.rotate(powerUp.bob * 0.3);
-    ctx.fillStyle = powerUp.color;
-    ctx.fillRect(-11, -11, 22, 22);
-    ctx.fillStyle = powerUp.accent;
-
-    if (powerUp.type === "rapid") {
-      ctx.fillRect(-8, -3, 16, 6);
-      ctx.fillRect(1, -8, 6, 16);
-      ctx.beginPath();
-      ctx.moveTo(-7, 9);
-      ctx.lineTo(0, -2);
-      ctx.lineTo(4, 2);
-      ctx.lineTo(-1, 11);
-      ctx.closePath();
-      ctx.fill();
-    } else {
-      ctx.fillRect(-3, -11, 6, 22);
-      ctx.fillRect(-11, -3, 22, 6);
+    ctx.rotate(powerUp.bob * 0.18);
+    const drewPower = drawImageCover(sprite, -16, -16, 32, 32, 0.95);
+    if (!drewPower) {
+      ctx.fillStyle = powerUp.color;
+      ctx.fillRect(-11, -11, 22, 22);
+      ctx.fillStyle = powerUp.accent;
+      if (powerUp.type === "rapid") {
+        ctx.fillRect(-8, -3, 16, 6);
+      } else {
+        ctx.fillRect(-3, -11, 6, 22);
+        ctx.fillRect(-11, -3, 22, 6);
+      }
+      ctx.strokeStyle = "rgba(255,255,255,0.45)";
+      ctx.lineWidth = 2;
+      ctx.strokeRect(-11, -11, 22, 22);
     }
-
-    ctx.strokeStyle = "rgba(255,255,255,0.45)";
-    ctx.lineWidth = 2;
-    ctx.strokeRect(-11, -11, 22, 22);
     ctx.restore();
   }
 }
@@ -1069,17 +1223,20 @@ function drawPowerUps() {
 function drawExplosions() {
   for (const burst of game.explosions) {
     const alpha = burst.life / burst.maxLife;
-    ctx.globalAlpha = alpha;
-    ctx.strokeStyle = burst.color;
-    ctx.lineWidth = 3 + burst.size;
-    ctx.beginPath();
-    ctx.arc(burst.x, burst.y, burst.radius, 0, Math.PI * 2);
-    ctx.stroke();
-
-    ctx.fillStyle = burst.color;
-    ctx.beginPath();
-    ctx.arc(burst.x, burst.y, burst.radius * 0.3, 0, Math.PI * 2);
-    ctx.fill();
+    const sprite = burst.size > 1.2 ? spriteLibrary.explosionMedium : spriteLibrary.explosionSmall;
+    const drewExplosion = drawImageCover(sprite, burst.x - burst.radius, burst.y - burst.radius, burst.radius * 2, burst.radius * 2, alpha * 0.92);
+    if (!drewExplosion) {
+      ctx.globalAlpha = alpha;
+      ctx.strokeStyle = burst.color;
+      ctx.lineWidth = 3 + burst.size;
+      ctx.beginPath();
+      ctx.arc(burst.x, burst.y, burst.radius, 0, Math.PI * 2);
+      ctx.stroke();
+      ctx.fillStyle = burst.color;
+      ctx.beginPath();
+      ctx.arc(burst.x, burst.y, burst.radius * 0.3, 0, Math.PI * 2);
+      ctx.fill();
+    }
   }
   ctx.globalAlpha = 1;
 }
@@ -1102,16 +1259,17 @@ function drawSurgeBanner() {
 
   const alpha = Math.min(1, game.surgeBannerTimer) * 0.95;
   const topY = 20;
+  const bossActive = game.enemies.some((enemy) => enemy.type === 'boss' && enemy.hp > 0);
   ctx.globalAlpha = alpha;
-  ctx.fillStyle = "rgba(255, 159, 67, 0.2)";
+  ctx.fillStyle = bossActive ? 'rgba(255, 84, 112, 0.24)' : "rgba(255, 159, 67, 0.2)";
   ctx.fillRect(42, topY, GAME_WIDTH - 84, 42);
-  ctx.strokeStyle = "#ffd166";
+  ctx.strokeStyle = bossActive ? '#ff8aa0' : "#ffd166";
   ctx.lineWidth = 2;
   ctx.strokeRect(42, topY, GAME_WIDTH - 84, 42);
   ctx.textAlign = "center";
   ctx.fillStyle = "#fff4cf";
   ctx.font = "bold 22px Trebuchet MS, Segoe UI, sans-serif";
-  ctx.fillText(`Threat Surge Lv ${game.lastThreatLevel}`, GAME_WIDTH / 2, topY + 28);
+  ctx.fillText(bossActive ? 'BOSS CONTACT' : `Threat Surge Lv ${game.lastThreatLevel}`, GAME_WIDTH / 2, topY + 28);
   ctx.globalAlpha = 1;
 }
 

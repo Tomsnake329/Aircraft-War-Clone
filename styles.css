@@ -10,6 +10,12 @@
   --accent-strong: #ffd166;
   --danger: #ff6b6b;
   --shadow: 0 18px 60px rgba(0, 0, 0, 0.32);
+  --art-bg-main: url('./assets/images/bg-main.jpg');
+  --art-bg-overlay: url('./assets/images/bg-overlay.jpg');
+  --art-panel-hud: url('./assets/images/panel-hud.jpg');
+  --art-panel-start: url('./assets/images/panel-start.jpg');
+  --art-panel-gameover: url('./assets/images/panel-gameover.jpg');
+  --art-logo: url('./assets/images/logo.jpg');
 }
 
 * {
@@ -22,7 +28,9 @@ body {
   min-height: 100%;
   font-family: "Trebuchet MS", "Segoe UI", sans-serif;
   background:
-    radial-gradient(circle at top, rgba(104, 224, 255, 0.16), transparent 28%),
+    radial-gradient(circle at top, rgba(104, 224, 255, 0.12), transparent 24%),
+    linear-gradient(rgba(4, 10, 18, 0.76), rgba(4, 10, 18, 0.9)),
+    var(--art-bg-main) center/cover fixed,
     linear-gradient(180deg, var(--bg-top), var(--bg-bottom));
   color: var(--text-main);
 }
@@ -81,10 +89,49 @@ body {
 
 .hud-card,
 .game-card {
+  position: relative;
   background: var(--panel);
   border: 1px solid var(--panel-border);
   border-radius: 24px;
   box-shadow: var(--shadow);
+  overflow: hidden;
+}
+
+.art-panel > *:not(.panel-art) {
+  position: relative;
+  z-index: 1;
+}
+
+.panel-art {
+  position: absolute;
+  inset: 0;
+  background-position: center;
+  background-repeat: no-repeat;
+  background-size: cover;
+  opacity: 0.32;
+  filter: saturate(0.95) contrast(1.05);
+  pointer-events: none;
+}
+
+.panel-art::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(rgba(5, 14, 26, 0.58), rgba(5, 14, 26, 0.78));
+}
+
+.panel-art--hud { background-image: var(--art-panel-hud); }
+.panel-art--start { background-image: var(--art-panel-start); opacity: 0.42; }
+.panel-art--gameover { background-image: var(--art-panel-gameover); opacity: 0.42; }
+
+.panel-logo {
+  position: relative;
+  z-index: 1;
+  width: 100%;
+  height: 92px;
+  margin: -8px auto 10px;
+  background: var(--art-logo) center/contain no-repeat;
+  filter: drop-shadow(0 10px 24px rgba(0, 0, 0, 0.35));
 }
 
 .hud-card {
@@ -97,6 +144,31 @@ body {
   align-items: center;
   padding: 10px 0;
   border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.hud-row--with-icon span:first-child {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.hud-inline-icon {
+  width: 18px;
+  height: 18px;
+  display: inline-block;
+  border-radius: 50%;
+  background-position: center;
+  background-repeat: no-repeat;
+  background-size: cover;
+  box-shadow: 0 0 0 1px rgba(255,255,255,0.14);
+}
+
+.hud-inline-icon--hp {
+  background-image: url('./assets/images/icon-hp.jpg');
+}
+
+.hud-inline-icon--weapon {
+  background-image: url('./assets/images/weapon-spread.jpg');
 }
 
 .hud-row:last-of-type {
@@ -118,7 +190,10 @@ body {
   aspect-ratio: 3 / 5;
   border-radius: 24px;
   overflow: hidden;
-  background: linear-gradient(180deg, rgba(8, 19, 38, 0.98), rgba(9, 25, 47, 0.98));
+  background:
+    linear-gradient(rgba(8, 19, 38, 0.55), rgba(9, 25, 47, 0.72)),
+    var(--art-bg-overlay) center/cover,
+    linear-gradient(180deg, rgba(8, 19, 38, 0.98), rgba(9, 25, 47, 0.98));
   border: 1px solid rgba(255, 255, 255, 0.12);
 }
 
@@ -145,12 +220,14 @@ canvas {
 }
 
 .panel {
+  position: relative;
   width: min(100%, 320px);
   padding: 24px;
   border-radius: 22px;
   border: 1px solid rgba(255, 255, 255, 0.12);
-  background: rgba(9, 20, 37, 0.94);
+  background: rgba(9, 20, 37, 0.88);
   text-align: center;
+  overflow: hidden;
 }
 
 .action-button {
