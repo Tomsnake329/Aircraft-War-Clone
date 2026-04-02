@@ -1,50 +1,57 @@
-# Sky Patrol Prototype
+# Aircraft War Clone
 
-First playable browser pass for a portrait-oriented aircraft shooter inspired by classic vertical airplane action, now using integrated local art assets for the in-game presentation and UI.
+目前版本已整理成可直接本機試玩的空戰原型，重點包含：
 
-## Included in this pass
+- 中文化主介面
+- 主選單（開始遊戲 / 強化商店 / 排行榜）
+- 兩關制流程與關底 Boss
+- Boss 專屬血條與分階段攻擊
+- 玩家姓名輸入與前 10 名排行榜
+- 商店升級與示意用儲值入口
+- 手機可拖曳操控
+- 本地美術素材已接入遊戲畫面
 
-- Title screen with start button
-- Pointer and touch-friendly aircraft steering
-- Automatic player firing
-- Enemy wave pacing with telegraphed spawns and escalating patterns
-- Bullet and player collision handling
-- Spread / rapid weapon pickups
-- Stronger hit feedback with flashes, screen shake, and larger explosions
-- Boss enemy appearance at higher threat levels
-- Score, HP, best-score tracking
-- Game over screen with restart loop
-- Mobile-friendly single-canvas layout
-- Local art integrated into gameplay, HUD, title, and game-over presentation
+## 目前玩法重點
 
-## Files
+- 遊戲採關卡制，先做兩關
+- 每關先清理敵機，之後出現 Boss
+- 擊敗 Boss 才會進下一關
+- 戰場上會掉落改變攻擊型態的道具
+  - 散射強化
+  - 光炮模組
 
-- `index.html`: game shell and UI overlays
-- `styles.css`: portrait/mobile-first styling
-- `src/main.js`: canvas game loop, state handling, spawning, and collisions
-- `assets/images/`: normalized imported art and runtime-used assets
-- `assets/images/processed/`: current in-use gameplay sprite set
-- `art/`: original source art dropped in for project integration
-- `ASSET_PLAN.md`: replacement asset plan for later art/audio production
+## 主要檔案
 
-## Run locally
+- `index.html`：主畫面與各種 overlay
+- `styles.css`：版面、UI、手機顯示樣式
+- `src/main.js`：主遊戲邏輯
+- `assets/images/processed/`：目前實際使用的素材
+- `art/`：原始素材
 
-1. Open `index.html` in a modern browser.
-2. If your browser blocks module loading from the file system, run a tiny local static server in this folder instead.
-3. Press **Start Mission** and drag or move your pointer/finger inside the game area to steer.
+## 啟動方式
 
-### Quick playtest via local server
+### 直接雙擊
+- `啟動遊戲.bat`
+- `關閉遊戲.bat`
+
+### 手動啟動
 
 ```powershell
 cd "C:\Users\User\Downloads\哥\BOT遊戲專屬區\Aircraft War Clone"
 python -m http.server 8080
 ```
 
-Then open:
+然後開啟：
 - `http://127.0.0.1:8080/`
 
-## Notes for future packaging
+## 操作方式
 
-- The code is browser-first and dependency-free.
-- Game logic lives in a single JS module for easy extraction into a WebView container.
-- Current art integration is suitable for iterative browser playtesting and can be swapped later without changing the core loop structure.
+- 鍵盤：`WASD` / 方向鍵移動
+- 手機：在畫面上拖曳機體移動
+- 主選單：滑鼠 / 觸控點擊按鈕
+
+## 備註
+
+- 排行榜目前使用 localStorage 儲存
+- 儲值入口目前是示意按鈕，尚未接真實金流
+- `.local/` 屬於本機執行暫存，不需進版控
